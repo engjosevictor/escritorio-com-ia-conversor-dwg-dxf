@@ -38,14 +38,27 @@ def localizar_conversor():
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--origem", required=True, help="pasta com os arquivos a converter")
-    ap.add_argument("--direcao", required=True, choices=["dwg2dxf", "dxf2dwg"])
+    ap.add_argument("--origem", help="pasta com os arquivos a converter")
+    ap.add_argument("--direcao", choices=["dwg2dxf", "dxf2dwg"])
     ap.add_argument("--versao", default="ACAD2018", choices=VERSOES_DWG_VALIDAS,
                      help="versao do AutoCAD de saida, so usado em dxf2dwg")
     ap.add_argument("--recursivo", action="store_true", help="incluir subpastas")
+    ap.add_argument("--check", action="store_true",
+                     help="so verifica se o ODA File Converter esta instalado, sem converter nada")
     args = ap.parse_args()
 
     exe = localizar_conversor()
+
+    if args.check:
+        if exe:
+            print(f"ODA File Converter encontrado em {exe}")
+            sys.exit(0)
+        print("ODA File Converter nao encontrado.")
+        sys.exit(1)
+
+    if not args.origem or not args.direcao:
+        ap.error("--origem e --direcao sao obrigatorios (exceto com --check)")
+
     if not exe:
         print("Erro: ODA File Converter nao encontrado. Instale antes de rodar.")
         sys.exit(1)
